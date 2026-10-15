@@ -121,11 +121,11 @@ flowchart TD
     D -->|LAUNCHER| H[Open app or folder]
 ```
 
-The key index is mapped to an action in `KEY_MAPPING`. For a different matrix that uses the same controller, update `ROW_PINS`, `COL_PINS`, and the key mapping to match the new PCB.
+The key index is mapped to an action in `KEY_MAPPING`. For a different matrix that uses the same controller, update `ROW_PINS`, `COL_PINS`, and the key mapping to match your PCB.
 
 ### Current keymap
 
-The table below describes the mapping in the supplied `code.py`. The configurator has its own initial/default mapping, so review the generated preview before replacing the Pico's firmware.
+The table below describes the mapping in the supplied `code.py`. You can modify it to your liking.
 
 | Index | Current action |
 |---:|---|
@@ -169,23 +169,22 @@ The table below describes the mapping in the supplied `code.py`. The configurato
 
 ### 3. Configure keys in the browser
 
-1. Open the configurator HTML file locally in a compatible browser.
+1. Open the configurator HTML file locally in a compatible browser or directly visit https://aryankpoor.github.io/macropad/
 2. Change key assignments and inspect the generated Python.
-3. Download the resulting `code.py`, or use the browser's folder picker to save it to the mounted Pico drive.
+3. The website will be able to directly flash the updated firmware to the pico, or you can directly download the code.py file and flash it to the PICO.
 4. Test the changed mapping. Keep a backup so you can restore the previous working firmware if necessary.
 
 ## 📁 Repository layout
 
-The exact filenames may differ depending on how the repository is organized. The project consists of these main parts:
+The project consists of these main parts:
 
 ```text
 macropad/
 ├── code.py                 # CircuitPython firmware installed on the Pico
-├── <configurator>.html     # Browser-based key mapping and code generator
+├── index.html              # Browser-based key mapping and code generator
 └── README.md               # Project documentation
 ```
 
-Replace `<configurator>.html` with the actual HTML filename in the repository.
 
 ## 🛠️ Technology stack
 
@@ -194,7 +193,6 @@ Replace `<configurator>.html` with the actual HTML filename in the repository.
 - **USB input:** USB HID
 - **HID libraries:** Adafruit CircuitPython HID
 - **Configurator:** HTML, CSS, JavaScript
-- **Documentation visuals:** Shields.io badges and Mermaid diagram
 
 ## 🗺️ Roadmap
 
