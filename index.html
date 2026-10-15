@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pico 5x4 Macro Keyboard Configurator</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --panel-bg: #1e293b;
+            --border-color: #334155;
+            --accent-color: #38bdf8;
+            --accent-hover: #0ea5e9;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --key-bg: #334155;
+            --key-hover: #475569;
+            --key-active: #0284c7;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            color: var(--accent-color);
+            margin-bottom: 4px;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 24px;
+            max-width: 1300px;
+            margin: 0 auto;
+            width: 100%;
+            flex: 1;
+        }
+
+        @media (max-width: 900px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .workspace {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .card h2 {
+            font-size: 1.2rem;
+            margin-bottom: 16px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Keyboard Grid Style */
+        .keyboard-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            max-width: 500px;
+            margin: 20px auto;
+        }
+
+        .key-btn {
+            background-color: var(--key-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            height: 75px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-main);
+            padding: 8px;
+            text-align: center;
+        }
+
+        .key-btn:hover {
+            background-color: var(--key-hover);
+            border-color: var(--accent-color);
+        }
+
+        .key-btn.selected {
+            background-color: var(--key-active);
+            border-color: var(--accent-color);
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+        }
+
+        .key-num {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .key-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        /* Config Sidebar */
+        .config-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        select, input {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 10px;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        select:focus, input:focus {
+            border-color: var(--accent-color);
+        }
+
+        .action-help {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* Code Preview Box */
+        .code-preview {
+            background-color: #090d16;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 14px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: #38bdf8;
+            max-height: 250px;
+            overflow-y: auto;
+            white-space: pre;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .btn {
+            flex: 1;
+            background-color: var(--accent-color);
+            color: #0f172a;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--border-color);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Pico 5x4 Macro Keyboard Configurator</h1>
+        <p>Keychron-style web assistant with direct Pico synchronization</p>
+    </header>
+
+    <div class="main-container">
+        <!-- Left Workspace: Keyboard Grid -->
+        <div class="workspace">
+            <div class="card" style="flex: 1; display: flex; flex-direction: column;">
+                <h2>Interactive 5x4 Matrix Layout <span style="font-size: 0.85rem; color: var(--text-muted);">Click a key to configure</span></h2>
+                <div class="keyboard-grid" id="keyboardGrid">
+                    <!-- Populated via JavaScript -->
+                </div>
+            </div>
+
+            <!-- Live Code Preview Card -->
+            <div class="card">
+                <h2>Generated Firmware (`code.py`)</h2>
+                <div class="code-preview" id="codePreview"></div>
+                <div class="btn-row">
+                    <button class="btn btn-secondary" id="downloadBtn">Download code.py</button>
+                    <button class="btn" id="connectSaveBtn">Connect & Save to Pico</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Sidebar: Configuration Panel -->
+        <div class="card" id="configPanel">
+            <h2>Key Configuration</h2>
+            <div id="noSelection" style="color: var(--text-muted); text-align: center; padding: 40px 0;">
+                Select a key from the grid above to configure its function.
+            </div>
+            <div class="config-form" id="activeConfig" style="display: none;">
+                <div class="form-group">
+                    <label>Selected Key Index</label>
+                    <input type="text" id="selectedKeyId" readonly style="background: #090d16;">
+                </div>
+
+                <div class="form-group">
+                    <label>Action Category</label>
+                    <select id="actionCategory">
+                        <option value="KEY">Standard Key</option>
+                        <option value="MOD">Modifier (Alt, Ctrl, Win)</option>
+                        <option value="MEDIA">Media & Volume Control</option>
+                        <option value="FUNC">Preset Macro Shortcut</option>
+                        <option value="LAUNCHER">App / Folder Launcher</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="groupKey">
+                    <label>Key Assignment</label>
+                    <select id="keyCodeSelect">
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+
+                <div class="form-group" id="groupLauncher" style="display: none;">
+                    <label id="launcherLabel">App Name or Folder Path</label>
+                    <input type="text" id="launcherInput" placeholder="e.g. Camera, Spotify, or C:\Users">
+                    <span class="action-help" id="launcherHelp">Backslashes in folder paths are automatically escaped for Python compatibility.</span>
+                </div>
+
+                <div class="form-group">
+                    <span class="action-help" id="actionDescription">Configure what this switch will send to your computer instantly upon press.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Default configuration for 20 keys (5 rows x 4 cols)
+        const keysConfig = [
+            { id: 0, category: 'KEY', value: 'Keycode.ESCAPE', label: 'ESC' },
+            { id: 1, category: 'FUNC', value: 'do_screenshot', label: 'Screenshot' },
+            { id: 2, category: 'KEY', value: 'Keycode.HOME', label: 'Home' },
+            { id: 3, category: 'MOD', value: 'Keycode.ALT', label: 'Alt' },
+            { id: 4, category: 'KEY', value: 'Keycode.INSERT', label: 'Insert' },
+            { id: 5, category: 'KEY', value: 'Keycode.PAGE_UP', label: 'Page Up' },
+            { id: 6, category: 'KEY', value: 'Keycode.PAGE_DOWN', label: 'Page Down' },
+            { id: 7, category: 'FUNC', value: 'do_display_mode', label: 'Display (Win+P)' },
+            { id: 8, category: 'MEDIA', value: 'ConsumerControlCode.BRIGHTNESS_DECREMENT', label: 'Bright Down' },
+            { id: 9, category: 'MEDIA', value: 'ConsumerControlCode.BRIGHTNESS_INCREMENT', label: 'Bright Up' },
+            { id: 10, category: 'MEDIA', value: 'ConsumerControlCode.PLAY_PAUSE', label: 'Play/Pause' },
+            { id: 11, category: 'FUNC', value: 'do_airplane_mode', label: 'Action Center' },
+            { id: 12, category: 'MEDIA', value: 'ConsumerControlCode.MUTE', label: 'Mute' },
+            { id: 13, category: 'MEDIA', value: 'ConsumerControlCode.VOLUME_DECREMENT', label: 'Vol Down' },
+            { id: 14, category: 'MEDIA', value: 'ConsumerControlCode.VOLUME_INCREMENT', label: 'Vol Up' },
+            { id: 15, category: 'MOD', value: 'Keycode.CONTROL', label: 'Control' },
+            { id: 16, category: 'MOD', value: 'Keycode.WINDOWS', label: 'Windows' },
+            { id: 17, category: 'KEY', value: 'Keycode.DELETE', label: 'Delete' },
+            { id: 18, category: 'FUNC', value: 'do_lock', label: 'Lock PC' },
+            { id: 19, category: 'KEY', value: 'Keycode.SPACE', label: 'Space' }
+        ];
+
+        let selectedKeyIndex = null;
+
+        const optionsData = {
+            KEY: [
+                { value: 'Keycode.ESCAPE', label: 'Escape (ESC)' },
+                { value: 'Keycode.ENTER', label: 'Enter' },
+                { value: 'Keycode.SPACE', label: 'Spacebar' },
+                { value: 'Keycode.BACKSPACE', label: 'Backspace' },
+                { value: 'Keycode.TAB', label: 'Tab' },
+                { value: 'Keycode.HOME', label: 'Home' },
+                { value: 'Keycode.END', label: 'End' },
+                { value: 'Keycode.INSERT', label: 'Insert' },
+                { value: 'Keycode.DELETE', label: 'Delete' },
+                { value: 'Keycode.PAGE_UP', label: 'Page Up' },
+                { value: 'Keycode.PAGE_DOWN', label: 'Page Down' }
+            ],
+            MOD: [
+                { value: 'Keycode.ALT', label: 'Left Alt' },
+                { value: 'Keycode.CONTROL', label: 'Left Control' },
+                { value: 'Keycode.WINDOWS', label: 'Left Windows' },
+                { value: 'Keycode.SHIFT', label: 'Left Shift' }
+            ],
+            MEDIA: [
+                { value: 'ConsumerControlCode.MUTE', label: 'Audio Mute' },
+                { value: 'ConsumerControlCode.VOLUME_INCREMENT', label: 'Volume Up' },
+                { value: 'ConsumerControlCode.VOLUME_DECREMENT', label: 'Volume Down' },
+                { value: 'ConsumerControlCode.PLAY_PAUSE', label: 'Play / Pause' },
+                { value: 'ConsumerControlCode.BRIGHTNESS_INCREMENT', label: 'Brightness Up' },
+                { value: 'ConsumerControlCode.BRIGHTNESS_DECREMENT', label: 'Brightness Down' },
+                { value: 'ConsumerControlCode.SCAN_NEXT_TRACK', label: 'Next Track' },
+                { value: 'ConsumerControlCode.SCAN_PREVIOUS_TRACK', label: 'Previous Track' }
+            ],
+            FUNC: [
+                { value: 'do_screenshot', label: 'Screenshot (Win + Shift + S)' },
+                { value: 'do_display_mode', label: 'Change Display (Win + P)' },
+                { value: 'do_airplane_mode', label: 'Action Center / Toggle (Win + A)' },
+                { value: 'do_lock', label: 'Lock PC (Win + L)' }
+            ]
+        };
+
+        const gridEl = document.getElementById('keyboardGrid');
+        const codePreviewEl = document.getElementById('codePreview');
+        const noSelectionEl = document.getElementById('noSelection');
+        const activeConfigEl = document.getElementById('activeConfig');
+        const selectedKeyIdInput = document.getElementById('selectedKeyId');
+        const actionCategorySelect = document.getElementById('actionCategory');
+        const keyCodeSelect = document.getElementById('keyCodeSelect');
+        const groupKey = document.getElementById('groupKey');
+        const groupLauncher = document.getElementById('groupLauncher');
+        const launcherInput = document.getElementById('launcherInput');
+
+        function renderGrid() {
+            gridEl.innerHTML = '';
+            keysConfig.forEach((key, idx) => {
+                const btn = document.createElement('div');
+                btn.className = `key-btn ${selectedKeyIndex === idx ? 'selected' : ''}`;
+                btn.innerHTML = `
+                    <div class="key-num">Key ${idx}</div>
+                    <div class="key-label">${key.label}</div>
+                `;
+                btn.onclick = () => selectKey(idx);
+                gridEl.appendChild(btn);
+            });
+            updateCodePreview();
+        }
+
+        function selectKey(idx) {
+            selectedKeyIndex = idx;
+            noSelectionEl.style.display = 'none';
+            activeConfigEl.style.display = 'flex';
+            selectedKeyIdInput.value = `Key ${idx} (Row ${Math.floor(idx/4)}, Col ${idx%4})`;
+
+            const config = keysConfig[idx];
+            actionCategorySelect.value = config.category;
+            updateCategoryOptions(config.category);
+
+            if (config.category === 'LAUNCHER') {
+                groupKey.style.display = 'none';
+                groupLauncher.style.display = 'flex';
+                launcherInput.value = config.value;
+            } else {
+                groupKey.style.display = 'flex';
+                groupLauncher.style.display = 'none';
+                keyCodeSelect.value = config.value;
+            }
+            renderGrid();
+        }
+
+        function updateCategoryOptions(category) {
+            keyCodeSelect.innerHTML = '';
+            if (category === 'LAUNCHER') {
+                groupKey.style.display = 'none';
+                groupLauncher.style.display = 'flex';
+                return;
+            }
+            groupKey.style.display = 'flex';
+            groupLauncher.style.display = 'none';
+
+            const opts = optionsData[category] || [];
+            opts.forEach(opt => {
+                const option = document.createElement('option');
+                option.value = opt.value;
+                option.textContent = opt.label;
+                keyCodeSelect.appendChild(option);
+            });
+        }
+
+        actionCategorySelect.onchange = (e) => {
+            const cat = e.target.value;
+            updateCategoryOptions(cat);
+            if (cat !== 'LAUNCHER') {
+                const opts = optionsData[cat];
+                if (opts && opts.length > 0) {
+                    keysConfig[selectedKeyIndex].category = cat;
+                    keysConfig[selectedKeyIndex].value = opts[0].value;
+                    keysConfig[selectedKeyIndex].label = opts[0].label;
+                }
+            } else {
+                keysConfig[selectedKeyIndex].category = 'LAUNCHER';
+                keysConfig[selectedKeyIndex].value = launcherInput.value || 'Camera';
+                keysConfig[selectedKeyIndex].label = 'Launch: ' + (launcherInput.value || 'Camera');
+            }
+            renderGrid();
+        };
+
+        keyCodeSelect.onchange = (e) => {
+            if (selectedKeyIndex === null) return;
+            const val = e.target.value;
+            const cat = actionCategorySelect.value;
+            const selectedOpt = optionsData[cat].find(o => o.value === val);
+
+            keysConfig[selectedKeyIndex].category = cat;
+            keysConfig[selectedKeyIndex].value = val;
+            keysConfig[selectedKeyIndex].label = selectedOpt ? selectedOpt.label : val;
+            renderGrid();
+        };
+
+        launcherInput.oninput = (e) => {
+            if (selectedKeyIndex === null) return;
+            const val = e.target.value;
+            keysConfig[selectedKeyIndex].category = 'LAUNCHER';
+            keysConfig[selectedKeyIndex].value = val;
+            keysConfig[selectedKeyIndex].label = val ? `Launch: ${val}` : 'App/Folder';
+            renderGrid();
+        };
+
+        function generateCode() {
+            let hasLauncher = false;
+            keysConfig.forEach((k) => {
+                if (k.category === 'LAUNCHER') hasLauncher = true;
+            });
+
+            let code = `import board
+import keypad
+import usb_hid
+import time
+from adafruit_hid.consumer_control import ConsumerControl
+from adafruit_hid.consumer_control_code import ConsumerControlCode
+from adafruit_hid.keyboard import Keyboard
+from adafruit_hid.keycode import Keycode
+`;
+
+            if (hasLauncher) {
+                code += `from adafruit_hid.keyboard_layout_us import KeyboardLayoutUS\n`;
+            }
+
+            code += `
+# Exact Row and Column pins from your PCB configuration
+ROW_PINS = (board.GP0, board.GP1, board.GP2, board.GP3, board.GP4)
+COL_PINS = (board.GP5, board.GP6, board.GP7, board.GP8)
+
+# Initialize the 5x4 matrix
+matrix = keypad.KeyMatrix(
+    row_pins=ROW_PINS, column_pins=COL_PINS, columns_to_anodes=True
+)
+
+# Initialize USB HID devices
+kbd = Keyboard(usb_hid.devices)
+cc = ConsumerControl(usb_hid.devices)
+`;
+
+            if (hasLauncher) {
+                code += `layout = KeyboardLayoutUS(kbd)\n`;
+            }
+
+            code += `
+def do_screenshot():
+    kbd.send(Keycode.WINDOWS, Keycode.SHIFT, Keycode.S)
+
+def do_display_mode():
+    kbd.send(Keycode.WINDOWS, Keycode.P)
+
+def do_airplane_mode():
+    kbd.send(Keycode.WINDOWS, Keycode.A)
+
+def do_lock():
+    kbd.send(Keycode.WINDOWS, Keycode.L)
+`;
+
+            if (hasLauncher) {
+                code += `
+def launch_target(target):
+    if '/' in target or '\\\\' in target or ':' in target:
+        kbd.send(Keycode.WINDOWS, Keycode.R)
+        time.sleep(0.3)
+        layout.write(target)
+        time.sleep(0.3)
+        kbd.send(Keycode.ENTER)
+    else:
+        kbd.send(Keycode.WINDOWS, Keycode.S)
+        time.sleep(0.3)
+        layout.write(target)
+        time.sleep(0.6)
+        kbd.send(Keycode.ENTER)
+`;
+            }
+
+            code += `
+KEY_MAPPING = {
+`;
+
+            keysConfig.forEach((k, idx) => {
+                if (k.category === 'LAUNCHER') {
+                    // Automatically escape backslashes so Python doesn't treat them as escape sequences (e.g. \U)
+                    const safeVal = k.value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+                    code += `    ${idx}: ('LAUNCHER', "${safeVal}"),\n`;
+                } else if (k.category === 'KEY' || k.category === 'MOD') {
+                    code += `    ${idx}: ('${k.category}', ${k.value}),\n`;
+                } else if (k.category === 'MEDIA') {
+                    code += `    ${idx}: ('MEDIA', ${k.value}),\n`;
+                } else if (k.category === 'FUNC') {
+                    code += `    ${idx}: ('FUNC', ${k.value}),\n`;
+                }
+            });
+
+            code += `}
+
+print("5x4 Custom Macro Keyboard Initialized Successfully!")
+
+while True:
+    event = matrix.events.get()
+    if event:
+        key_idx = event.key_number
+        if key_idx in KEY_MAPPING:
+            action_type, action_val = KEY_MAPPING[key_idx]
+            
+            if action_type in ('KEY', 'MOD'):
+                if event.pressed:
+                    kbd.press(action_val)
+                elif event.released:
+                    kbd.release(action_val)
+            elif action_type == 'MEDIA':
+                if event.pressed:
+                    cc.send(action_val)
+            elif action_type == 'FUNC':
+                if event.pressed:
+                    action_val()
+            elif action_type == 'LAUNCHER':
+                if event.pressed:
+                    launch_target(action_val)
+`;
+            return code;
+        }
+
+        function updateCodePreview() {
+            codePreviewEl.textContent = generateCode();
+        }
+
+        document.getElementById('downloadBtn').onclick = () => {
+            const code = generateCode();
+            const blob = new Blob([code], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'code.py';
+            a.click();
+            URL.revokeObjectURL(url);
+        };
+
+        document.getElementById('connectSaveBtn').onclick = async () => {
+            try {
+                const dirHandle = await window.showDirectoryPicker();
+                const fileHandle = await dirHandle.getFileHandle('code.py', { create: true });
+                const writable = await fileHandle.createWritable();
+                await writable.write(generateCode());
+                await writable.close();
+                alert('Success! code.py was successfully written directly to your Pico drive.');
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    console.error(err);
+                    alert('Error saving directly: ' + err.message);
+                }
+            }
+        };
+
+        renderGrid();
+    </script>
+</body>
+</html>
