@@ -162,17 +162,14 @@ The table below describes the mapping in the supplied `code.py`. You can modify 
 
 ### 2. Install the firmware
 
-1. Back up the existing `code.py`.
-2. Copy the project's configured `code.py` to the root of the Pico's CircuitPython drive.
-3. Safely eject or disconnect the drive if your operating system requires it.
-4. Press the macropad switches and verify the expected keyboard/media actions.
+1. You can copy the `code.py` file and `configurator_app.py` file from the repository to your PICO. 
+2. Either visit https://aryankpoor.github.io/macropad or Press the top left key on your macropad thrice in quick succession. 
+3. This will run a script which will automatically open up configurator_app.py stored on the PICO which you can use to fully modify the macropad. It is the same as the website but just the local version.
+4. Finally, press the macropad switches and verify the expected keyboard/media actions.
+5. You can change the 3-successive key press macro from top left key to any other key of your choice. Just change the key number in ```if key_idx == 0:``` from 0 to the one you want.
 
 ### 3. Configure keys in the browser
 
-1. Open the configurator HTML file locally in a compatible browser or directly visit https://aryankpoor.github.io/macropad/
-2. Change key assignments and inspect the generated Python.
-3. The website will be able to directly flash the updated firmware to the pico, or you can directly download the code.py file and flash it to the PICO.
-4. Test the changed mapping. Keep a backup so you can restore the previous working firmware if necessary.
 
 ## 📁 Repository layout
 
@@ -183,6 +180,7 @@ macropad/
 ├── code.py                 # CircuitPython firmware installed on the Pico
 ├── index.html              # Browser-based key mapping and code generator
 └── README.md               # Project documentation
+└── configurator_app.py     # Local Macropad Configuration tool
 ```
 
 
@@ -210,12 +208,4 @@ macropad/
 - Always verify generated `code.py` before installing it; the configurator and firmware defaults are not identical in every assignment.
 - The configurator's launcher actions type targets using a US keyboard layout and invoke Windows shortcuts, so host layout and OS behavior can affect results.
 - The expansion board is a planned extension, not a currently configured feature.
-- This README describes the supplied schematic, firmware, and configurator. Update the file tree and add project photos or a PCB render once their repository paths are finalized.
-
 ---
-
-<div align="center">
-
-**Built to be remapped. Designed to be expanded.**
-
-</div>
